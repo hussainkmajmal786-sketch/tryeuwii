@@ -47,7 +47,7 @@ export default function SettingsPage() {
             <input
               value={jamendoKey}
               onChange={(e) => setJamendoKey(e.target.value)}
-              placeholder="d97d2201abe62847e0cf1206d562cd4f"
+              placeholder="Paste your Jamendo client ID here"
               style={{
                 width: "100%",
                 padding: "10px 12px",
