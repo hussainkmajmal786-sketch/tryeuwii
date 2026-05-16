@@ -1,21 +1,20 @@
 import { useState, useEffect } from "react";
 import { getStorageUsage, formatBytes } from "../utils/localFiles";
-import { hasJamendoKey, getJamendoClientId, setJamendoClientId, clearJamendoClientId } from "../utils/freeMusic";
+import { hasJamendoKey, getJamendoClientId, setJamendoClientId, clearJamendoClientId, validateJamendoClientId } from "../utils/freeMusic";
 import Icon from "../components/Icon";
 
 export default function SettingsPage() {
   const [storage, setStorage] = useState({ used: 0, quota: 0, percent: 0 });
   const [jamendoKey, setJamendoKey] = useState("");
-  const [saved, setSaved] = useState(hasJamendoKey());
+  const [saved, setSaved] = useState(false);
   const [message, setMessage] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     getStorageUsage().then(setStorage);
-    setJamendoKey(getJamendoClientId());
-  }, []);
-
-  useEffect(() => {
-    getStorageUsage().then(setStorage);
+    const currentKey = getJamendoClientId();
+    setJamendoKey(currentKey);
+    setSaved(Boolean(currentKey));
   }, []);
 
   return (
@@ -61,11 +60,21 @@ export default function SettingsPage() {
           </div>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
             <button
-              onClick={() => {
+              onClick={async () => {
                 if (!jamendoKey.trim()) {
                   setMessage("Please enter a Jamendo client ID to save.");
                   return;
                 }
+                setIsSaving(true);
+                setMessage("");
+                const valid = await validateJamendoClientId(jamendoKey.trim());
+                setIsSaving(false);
+
+                if (!valid) {
+                  setMessage("That Jamendo client ID appears invalid. Check your key and try again.");
+                  return;
+                }
+
                 setJamendoClientId(jamendoKey.trim());
                 setSaved(true);
                 setMessage("Jamendo client ID saved locally. Search should work now.");
@@ -79,7 +88,7 @@ export default function SettingsPage() {
                 cursor: "pointer",
               }}
             >
-              Save Jamendo key
+              {isSaving ? "Validating..." : "Save Jamendo key"}
             </button>
             <button
               onClick={() => {

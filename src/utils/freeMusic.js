@@ -43,6 +43,23 @@ export function hasJamendoKey() {
   return Boolean(getJamendoClientId());
 }
 
+export async function validateJamendoClientId(key) {
+  if (!key) return false;
+  try {
+    const params = new URLSearchParams({
+      client_id: key.trim(),
+      format: "json",
+      limit: "1",
+      search: "test",
+    });
+    const res = await fetch(`${JAMENDO_BASE}/tracks/?${params}`);
+    const data = await res.json();
+    return !data.errors && Array.isArray(data.results);
+  } catch {
+    return false;
+  }
+}
+
 // ─── Jamendo API ─────────────────────────────────────────────────────────────
 
 /**
