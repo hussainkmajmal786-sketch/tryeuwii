@@ -11,6 +11,37 @@
 
 const JAMENDO_BASE = "https://api.jamendo.com/v3.0";
 const JAMENDO_CLIENT_ID = import.meta.env.VITE_JAMENDO_CLIENT_ID || "";
+const JAMENDO_KEY_STORAGE = "sw_jamendo_key";
+
+export function getJamendoClientId() {
+  if (typeof window === "undefined" || typeof window.localStorage === "undefined") {
+    return JAMENDO_CLIENT_ID;
+  }
+  try {
+    const storedKey = localStorage.getItem(JAMENDO_KEY_STORAGE);
+    return storedKey ? storedKey.trim() : JAMENDO_CLIENT_ID;
+  } catch {
+    return JAMENDO_CLIENT_ID;
+  }
+}
+
+export function setJamendoClientId(key) {
+  if (typeof window === "undefined" || typeof window.localStorage === "undefined") return;
+  try {
+    localStorage.setItem(JAMENDO_KEY_STORAGE, key.trim());
+  } catch {}
+}
+
+export function clearJamendoClientId() {
+  if (typeof window === "undefined" || typeof window.localStorage === "undefined") return;
+  try {
+    localStorage.removeItem(JAMENDO_KEY_STORAGE);
+  } catch {}
+}
+
+export function hasJamendoKey() {
+  return Boolean(getJamendoClientId());
+}
 
 // ─── Jamendo API ─────────────────────────────────────────────────────────────
 
@@ -18,10 +49,11 @@ const JAMENDO_CLIENT_ID = import.meta.env.VITE_JAMENDO_CLIENT_ID || "";
  * Search tracks on Jamendo
  */
 export async function searchJamendo(query, limit = 20) {
-  if (!JAMENDO_CLIENT_ID) return [];
+  const clientId = getJamendoClientId();
+  if (!clientId) return [];
   try {
     const params = new URLSearchParams({
-      client_id: JAMENDO_CLIENT_ID,
+      client_id: clientId,
       format: "json",
       limit: String(limit),
       search: query,
@@ -41,10 +73,11 @@ export async function searchJamendo(query, limit = 20) {
  * Get popular/trending tracks from Jamendo
  */
 export async function getPopularJamendo(limit = 30) {
-  if (!JAMENDO_CLIENT_ID) return [];
+  const clientId = getJamendoClientId();
+  if (!clientId) return [];
   try {
     const params = new URLSearchParams({
-      client_id: JAMENDO_CLIENT_ID,
+      client_id: clientId,
       format: "json",
       limit: String(limit),
       order: "popularity_week",
@@ -64,10 +97,11 @@ export async function getPopularJamendo(limit = 30) {
  * Get tracks by genre/tag from Jamendo
  */
 export async function getByGenreJamendo(genre, limit = 20) {
-  if (!JAMENDO_CLIENT_ID) return [];
+  const clientId = getJamendoClientId();
+  if (!clientId) return [];
   try {
     const params = new URLSearchParams({
-      client_id: JAMENDO_CLIENT_ID,
+      client_id: clientId,
       format: "json",
       limit: String(limit),
       tags: genre.toLowerCase(),
@@ -268,9 +302,4 @@ function writeString(view, offset, str) {
   for (let i = 0; i < str.length; i++) {
     view.setUint8(offset + i, str.charCodeAt(i));
   }
-}
-
-// ─── Check if free music API is configured ───────────────────────────────────
-export function hasJamendoKey() {
-  return !!JAMENDO_CLIENT_ID;
 }

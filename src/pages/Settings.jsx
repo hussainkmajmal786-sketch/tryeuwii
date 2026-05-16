@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { getStorageUsage, formatBytes } from "../utils/localFiles";
-import { hasJamendoKey } from "../utils/freeMusic";
+import { hasJamendoKey, getJamendoClientId, setJamendoClientId, clearJamendoClientId } from "../utils/freeMusic";
 import Icon from "../components/Icon";
 
 export default function SettingsPage() {
   const [storage, setStorage] = useState({ used: 0, quota: 0, percent: 0 });
+  const [jamendoKey, setJamendoKey] = useState("");
+  const [saved, setSaved] = useState(hasJamendoKey());
+  const [message, setMessage] = useState("");
+
+  useEffect(() => {
+    getStorageUsage().then(setStorage);
+    setJamendoKey(getJamendoClientId());
+  }, []);
 
   useEffect(() => {
     getStorageUsage().then(setStorage);
@@ -32,21 +40,82 @@ export default function SettingsPage() {
           status={hasJamendoKey() ? "Connected" : "Not configured"}
           statusColor={hasJamendoKey() ? "var(--accent)" : "var(--text-dim)"}
         />
-        {!hasJamendoKey() && (
-          <div style={{
-            background: "var(--bg-elevated)", borderRadius: "var(--radius-md)",
-            padding: 16, marginTop: 8, border: "1px solid var(--border)", fontSize: 13,
-            color: "var(--text-secondary)", lineHeight: 1.7,
-          }}>
-            <strong style={{ color: "var(--accent)" }}>How to enable Jamendo:</strong><br />
-            1. Visit <a href="https://devportal.jamendo.com/" target="_blank" rel="noopener" style={{ color: "var(--accent)" }}>devportal.jamendo.com</a> and create a free account<br />
-            2. Create an app to get your Client ID<br />
-            3. Create a <code style={{ background: "rgba(255,255,255,0.08)", padding: "1px 6px", borderRadius: 3 }}>.env</code> file in the project root:<br />
-            <code style={{ display: "block", background: "rgba(255,255,255,0.05)", padding: "8px 12px", borderRadius: 4, marginTop: 6 }}>
-              VITE_JAMENDO_CLIENT_ID=your_client_id_here
-            </code>
+        <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+          <div>
+            <label style={{ display: "block", marginBottom: 6, fontSize: 13, fontWeight: 600 }}>
+              Jamendo Client ID
+            </label>
+            <input
+              value={jamendoKey}
+              onChange={(e) => setJamendoKey(e.target.value)}
+              placeholder="d97d2201abe62847e0cf1206d562cd4f"
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                borderRadius: "var(--radius-sm)",
+                border: "1px solid var(--border)",
+                background: "var(--bg-primary)",
+                color: "var(--text-primary)",
+              }}
+            />
           </div>
-        )}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button
+              onClick={() => {
+                if (!jamendoKey.trim()) {
+                  setMessage("Please enter a Jamendo client ID to save.");
+                  return;
+                }
+                setJamendoClientId(jamendoKey.trim());
+                setSaved(true);
+                setMessage("Jamendo client ID saved locally. Search should work now.");
+              }}
+              style={{
+                padding: "10px 14px",
+                background: "var(--accent)",
+                color: "#000",
+                border: "none",
+                borderRadius: "var(--radius-sm)",
+                cursor: "pointer",
+              }}
+            >
+              Save Jamendo key
+            </button>
+            <button
+              onClick={() => {
+                clearJamendoClientId();
+                setJamendoKey("");
+                setSaved(false);
+                setMessage("Jamendo key cleared from browser storage.");
+              }}
+              style={{
+                padding: "10px 14px",
+                background: "rgba(255,255,255,0.08)",
+                color: "var(--text-primary)",
+                border: "1px solid var(--border)",
+                borderRadius: "var(--radius-sm)",
+                cursor: "pointer",
+              }}
+            >
+              Clear key
+            </button>
+          </div>
+          {message && (
+            <div style={{ color: "var(--text-secondary)", fontSize: 13 }}>{message}</div>
+          )}
+          {!saved && (
+            <div style={{
+              background: "var(--bg-elevated)", borderRadius: "var(--radius-md)",
+              padding: 16, border: "1px solid var(--border)", fontSize: 13,
+              color: "var(--text-secondary)", lineHeight: 1.7,
+            }}>
+              <strong style={{ color: "var(--accent)" }}>How to enable Jamendo:</strong><br />
+              1. Visit <a href="https://devportal.jamendo.com/" target="_blank" rel="noopener" style={{ color: "var(--accent)" }}>devportal.jamendo.com</a> and create a free account<br />
+              2. Create an app to get your Client ID<br />
+              3. Paste the key above and save it<br />
+            </div>
+          )}
+        </div>
       </Section>
 
       {/* Storage */}
