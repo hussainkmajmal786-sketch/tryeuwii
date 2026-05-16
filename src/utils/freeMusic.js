@@ -3,8 +3,7 @@
  * 
  * Integrates with APIs that provide free, legal music:
  * 1. Jamendo API - CC-licensed music (requires free API key)
- * 2. Free Music Archive
- * 3. Built-in demo tracks using Web Audio API
+ * 2. Built-in demo tracks using Web Audio API
  * 
  * To use Jamendo: Sign up at https://devportal.jamendo.com/
  * and set VITE_JAMENDO_CLIENT_ID in your .env file
@@ -103,82 +102,7 @@ function mapJamendoTrack(j) {
   };
 }
 
-// ─── Audius API (no key required, full-length tracks) ────────────────────────
-
-const AUDIUS_APP = "SoundWave";
-let audiusHostPromise = null;
 const demoAudioCache = new Map();
-
-async function getAudiusHost() {
-  if (!audiusHostPromise) {
-    audiusHostPromise = (async () => {
-      try {
-        const res = await fetch("https://api.audius.co");
-        const data = await res.json();
-        const hosts = data.data || [];
-        return hosts[Math.floor(Math.random() * hosts.length)] || "https://discoveryprovider.audius.co";
-      } catch {
-        return "https://discoveryprovider.audius.co";
-      }
-    })();
-  }
-  return audiusHostPromise;
-}
-
-/**
- * Search Audius for full-length tracks. No API key required.
- */
-export async function searchAudius(query, limit = 25) {
-  try {
-    const host = await getAudiusHost();
-    const params = new URLSearchParams({
-      query,
-      app_name: AUDIUS_APP,
-      limit: String(limit),
-    });
-    const res = await fetch(`${host}/v1/tracks/search?${params}`);
-    const data = await res.json();
-    return (data.data || []).map((t) => mapAudiusTrack(t, host));
-  } catch (err) {
-    console.warn("Audius search failed:", err);
-    return [];
-  }
-}
-
-/**
- * Get trending tracks from Audius (used as a "free" popular feed).
- */
-export async function getTrendingAudius(limit = 30) {
-  try {
-    const host = await getAudiusHost();
-    const params = new URLSearchParams({
-      app_name: AUDIUS_APP,
-      limit: String(limit),
-    });
-    const res = await fetch(`${host}/v1/tracks/trending?${params}`);
-    const data = await res.json();
-    return (data.data || []).slice(0, limit).map((t) => mapAudiusTrack(t, host));
-  } catch (err) {
-    console.warn("Audius trending failed:", err);
-    return [];
-  }
-}
-
-function mapAudiusTrack(t, host) {
-  return {
-    id: `audius_${t.id}`,
-    title: t.title,
-    artist: t.user?.name || t.user?.handle || "Unknown",
-    album: "Audius",
-    duration: t.duration || 0,
-    audioUrl: `${host}/v1/tracks/${t.id}/stream?app_name=${AUDIUS_APP}`,
-    coverUrl: t.artwork?.["480x480"] || t.artwork?.["150x150"] || t.artwork?.["1000x1000"] || "",
-    source: "other",
-    genre: t.genre || "Unknown",
-    plays: t.play_count || 0,
-    license: "Audius",
-  };
-}
 
 /**
  * Generate demo tracks with synthesized audio for testing.

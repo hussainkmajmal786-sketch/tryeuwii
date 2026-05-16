@@ -1,6 +1,6 @@
 # 🎵 SoundWave — Free Music Streaming App
 
-A fully-featured, privacy-first music player built with React + Vite. Plays local files, streams full tracks from Audius, supports optional CC-licensed Jamendo search, and works offline as a PWA. No ads, no tracking, no subscription.
+A fully-featured, privacy-first music player built with React + Vite. Plays local files, streams CC-licensed tracks from Jamendo, and works offline as a PWA. No ads, no tracking, no subscription.
 
 ---
 
@@ -32,7 +32,7 @@ Open **http://localhost:5173** — your app is running! 🎉
 | Feature | Description |
 |---------|-------------|
 | **Local Music** | Import MP3, FLAC, WAV, M4A, OGG, AAC files |
-| **Free Streaming** | Full tracks from Audius, plus optional CC-licensed tracks via Jamendo API |
+| **Free Streaming** | CC-licensed tracks from Jamendo, plus demo music built into the app |
 | **Auto Metadata** | Extracts title, artist, album, cover art automatically |
 | **Playlists** | Create, edit, delete custom playlists |
 | **Liked Songs** | Heart any track to save it |
@@ -48,7 +48,7 @@ Open **http://localhost:5173** — your app is running! 🎉
 
 ## 🎵 Adding Free Music (Jamendo)
 
-SoundWave searches Audius without an API key. It can also integrate with **Jamendo**, a platform with millions of free, Creative Commons licensed tracks.
+SoundWave integrates with **Jamendo**, a platform with millions of free, Creative Commons licensed tracks.
 
 ### Get your free API key:
 

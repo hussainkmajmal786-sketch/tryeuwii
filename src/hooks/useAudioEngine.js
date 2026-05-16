@@ -140,7 +140,8 @@ export function useAudioEngine() {
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    audio.volume = isMuted ? 0 : volume;
+    audio.volume = Math.max(0, Math.min(1, volume));
+    audio.muted = Boolean(isMuted);
   }, [volume, isMuted]);
 
   const seek = useCallback((time) => {

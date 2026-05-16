@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useLibraryStore } from "../store";
-import { searchJamendo, searchAudius, hasJamendoKey } from "../utils/freeMusic";
+import { searchJamendo, hasJamendoKey } from "../utils/freeMusic";
 import TrackList from "../components/TrackList";
 import Icon from "../components/Icon";
 
@@ -52,9 +52,7 @@ export default function SearchPage() {
           t.genre?.toLowerCase().includes(q)
       );
 
-      // Search online sources in parallel. Audius streams full-length tracks
-      // without an API key; Jamendo is included when configured.
-      const onlineSearches = [searchAudius(query, 50)];
+      const onlineSearches = [];
       if (hasJamendoKey()) onlineSearches.push(searchJamendo(query, 50));
 
       try {
@@ -120,7 +118,7 @@ export default function SearchPage() {
         ) : results.length > 0 ? (
           <>
             <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 12 }}>
-              {results.length} result{results.length !== 1 ? "s" : ""} (including full tracks from online sources)
+              {results.length} result{results.length !== 1 ? "s" : ""} (including CC-licensed tracks from Jamendo)
             </p>
             <TrackList tracks={results} />
           </>
