@@ -118,7 +118,7 @@ export default function SearchPage() {
         ) : results.length > 0 ? (
           <>
             <p style={{ color: "var(--text-dim)", fontSize: 13, marginBottom: 12 }}>
-              {results.length} result{results.length !== 1 ? "s" : ""} (including CC-licensed tracks from Jamendo)
+              {results.length} result{results.length !== 1 ? "s" : ""} (including CC-licensed full tracks from Jamendo)
             </p>
             <TrackList tracks={results} />
           </>
